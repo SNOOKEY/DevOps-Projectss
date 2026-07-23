@@ -44,5 +44,13 @@ stage('Quality Gate') {
         }
     }
 }
+
+stage('Docker Build') {
+    steps {
+        dir('DevOps-Project-38/FullStack-Blogging-App') {
+            bat 'docker build -t twitter-app:latest .'
+        }
+    }
+}
     }
 }
