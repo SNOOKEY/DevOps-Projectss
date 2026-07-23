@@ -16,6 +16,11 @@ pipeline {
         }
     }
 }
+stage('Publish Test Results') {
+    steps {
+        junit 'DevOps-Project-38/FullStack-Blogging-App/target/surefire-reports/*.xml'
+    }
+}
 
         stage('Archive Artifact') {
              steps {
