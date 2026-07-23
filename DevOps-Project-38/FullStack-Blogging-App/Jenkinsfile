@@ -3,10 +3,12 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                echo "Repository checked out successfully."
-            }
+       
+            stage('Checkout') {
+    steps {
+        checkout scm
+    }
+}
         }
 
         stage('Build & Test') {
