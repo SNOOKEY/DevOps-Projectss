@@ -3,86 +3,87 @@ pipeline {
 
     stages {
 
-       
-            stage('Checkout') {
-    steps {
-        checkout scm
-    }
-}
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
         }
 
         stage('Build & Test') {
-    steps {
-        dir('DevOps-Project-38/FullStack-Blogging-App') {
-            bat 'mvn clean package'
-        }
-    }
-}
-stage('Publish Test Results') {
-    steps {
-        junit 'DevOps-Project-38/FullStack-Blogging-App/target/surefire-reports/*.xml'
-    }
-}
-
-        stage('Archive Artifact') {
-             steps {
-                archiveArtifacts artifacts: 'DevOps-Project-38/FullStack-Blogging-App/target/*.jar', fingerprint: true
-    }
-}
-stage('SonarQube Analysis') {
-    steps {
-        dir('DevOps-Project-38/FullStack-Blogging-App') {
-            withSonarQubeEnv('SonarQube') {
-                bat 'mvn sonar:sonar'
+            steps {
+                dir('DevOps-Project-38/FullStack-Blogging-App') {
+                    bat 'mvn clean package'
+                }
             }
         }
-    }
-}
 
-stage('Quality Gate') {
-    steps {
-        timeout(time: 2, unit: 'MINUTES') {
-            waitForQualityGate abortPipeline: true
+        stage('Publish Test Results') {
+            steps {
+                junit 'DevOps-Project-38/FullStack-Blogging-App/target/surefire-reports/*.xml'
+            }
         }
-    }
-}
 
-stage('Docker Build') {
-    steps {
-        dir('DevOps-Project-38/FullStack-Blogging-App') {
-            bat "docker build -t snookeyanas/twitter-app:${BUILD_NUMBER} ."
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts artifacts: 'DevOps-Project-38/FullStack-Blogging-App/target/*.jar', fingerprint: true
+            }
         }
-    }
-}
-stage('Push Docker Image') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'dockerhub-creds',
-            usernameVariable: 'DOCKER_USER',
-            passwordVariable: 'DOCKER_PASS'
-        )]) {
-            bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
-            bat "docker push snookeyanas/twitter-app:${BUILD_NUMBER}"
+
+        stage('SonarQube Analysis') {
+            steps {
+                dir('DevOps-Project-38/FullStack-Blogging-App') {
+                    withSonarQubeEnv('SonarQube') {
+                        bat 'mvn sonar:sonar'
+                    }
+                }
+            }
         }
-    }
-}
-stage('Verify kubectl') {
-    steps {
-        bat 'kubectl version --client'
-    }
-}
-stage('Deploy to Kubernetes') {
-    steps {
-        bat """
-        kubectl set image deployment/twitter-app ^
-        twitter-app=snookeyanas/twitter-app:${BUILD_NUMBER}
-        """
-    }
-}
-stage('Verify Rollout') {
-    steps {
-        bat 'kubectl rollout status deployment/twitter-app'
-    }
-}
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('DevOps-Project-38/FullStack-Blogging-App') {
+                    bat "docker build -t snookeyanas/twitter-app:${BUILD_NUMBER} ."
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
+                    bat "docker push snookeyanas/twitter-app:${BUILD_NUMBER}"
+                }
+            }
+        }
+
+        stage('Verify kubectl') {
+            steps {
+                bat 'kubectl version --client'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                bat "kubectl set image deployment/twitter-app twitter-app=snookeyanas/twitter-app:${BUILD_NUMBER}"
+            }
+        }
+
+        stage('Verify Rollout') {
+            steps {
+                bat 'kubectl rollout status deployment/twitter-app'
+            }
+        }
     }
 }
