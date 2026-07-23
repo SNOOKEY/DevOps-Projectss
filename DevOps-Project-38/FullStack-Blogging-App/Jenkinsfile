@@ -63,6 +63,23 @@ stage('Push Docker Image') {
             bat "docker push snookeyanas/twitter-app:${BUILD_NUMBER}"
         }
     }
+}stage('Verify kubectl') {
+    steps {
+        bat 'kubectl version --client'
+    }
+}
+stage('Deploy to Kubernetes') {
+    steps {
+        bat """
+        kubectl set image deployment/twitter-app ^
+        twitter-app=snookeyanas/twitter-app:${BUILD_NUMBER}
+        """
+    }
+}
+stage('Verify Rollout') {
+    steps {
+        bat 'kubectl rollout status deployment/twitter-app'
+    }
 }
     }
 }
