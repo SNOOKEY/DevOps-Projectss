@@ -27,5 +27,14 @@ stage('Publish Test Results') {
                 archiveArtifacts artifacts: 'DevOps-Project-38/FullStack-Blogging-App/target/*.jar', fingerprint: true
     }
 }
+stage('SonarQube Analysis') {
+    steps {
+        dir('DevOps-Project-38/FullStack-Blogging-App') {
+            withSonarQubeEnv('SonarQube') {
+                bat 'mvn sonar:sonar'
+            }
+        }
+    }
+}
     }
 }
