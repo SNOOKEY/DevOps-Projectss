@@ -63,7 +63,8 @@ stage('Push Docker Image') {
             bat "docker push snookeyanas/twitter-app:${BUILD_NUMBER}"
         }
     }
-}stage('Verify kubectl') {
+}
+stage('Verify kubectl') {
     steps {
         bat 'kubectl version --client'
     }
