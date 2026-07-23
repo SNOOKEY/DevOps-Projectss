@@ -85,5 +85,15 @@ pipeline {
                 bat 'kubectl rollout status deployment/twitter-app'
             }
         }
+        stage('Debug Kubernetes') {
+    steps {
+        bat '''
+        whoami
+        echo KUBECONFIG=%KUBECONFIG%
+        kubectl config current-context
+        kubectl cluster-info
+        '''
+    }
+}
     }
 }
