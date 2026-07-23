@@ -9,13 +9,13 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                dir('DevOps-Project-38/FullStack-Blogging-App') {
-                    bat 'mvn clean test'
-                }
-            }
+        stage('Build & Test') {
+    steps {
+        dir('DevOps-Project-38/FullStack-Blogging-App') {
+            bat 'mvn clean package'
         }
+    }
+}
 
         stage('Archive Artifact') {
              steps {
