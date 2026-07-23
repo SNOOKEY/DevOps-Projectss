@@ -2,18 +2,17 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
                 echo "Repository checked out successfully."
             }
         }
 
-        stage('Verify Project Structure') {
+        stage('Build') {
             steps {
                 dir('DevOps-Project-38/FullStack-Blogging-App') {
-                    echo "Current Directory:"
-                    bat 'cd'
-                    bat 'dir'
+                    bat 'mvn clean package -DskipTests'
                 }
             }
         }
